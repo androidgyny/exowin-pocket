@@ -1,0 +1,136 @@
+import { createSignal } from "solid-js";
+import { getPreviewDir, getPosterDir, getAvailableCollections } from "../api/tauri";
+
+// â”€â”€ Directory caches â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+const [previewDirs, setPreviewDirs] = createSignal<Record<string, string>>({});
+const [posterDirs, setPosterDirs] = createSignal<Record<string, string>>({});
+/** False until the first resolve finishes. Callers that ask "is this
+ *  collection on the low-res tier?" would otherwise read the empty startup
+ *  state as "yes" and act on it. */
+const [dirsLoaded, setDirsLoaded] = createSignal(false);
+
+export { previewDirs, posterDirs, dirsLoaded as thumbnailDirsLoaded };
+
+/** Which collection's art a pack borrows is decided in Rust (`asset_fallback`)
+ *  and already baked into the resolved dir, so there is nothing to fall back to
+ *  here - a second, string-prefix copy of that rule would only drift from it. */
+function dirForCollection(
+  dirs: Record<string, string>,
+  collectionId: string | null | undefined,
+): string | null {
+  return dirs[collectionId ?? "eXoDOS"] ?? null;
+}
+/** Return the Tier 0 preview dir for a collection (bundled, always available). */
+export function previewDirForCollection(collectionId: string | null | undefined): string | null {
+  return dirForCollection(previewDirs(), collectionId);
+}
+
+/** Return the Tier 1 poster dir for a collection (runtime-downloaded). */
+export function posterDirForCollection(collectionId: string | null | undefined): string | null {
+  return dirForCollection(posterDirs(), collectionId);
+}
+
+// â”€â”€ Backward compat alias (used by existing callers during migration) â”€â”€â”€â”€â”€â”€â”€â”€
+
+/** @deprecated Use previewDirForCollection or bestThumbnailPath instead. */
+export function thumbnailDirForCollection(collectionId: string | null | undefined): string | null {
+  return posterDirForCollection(collectionId) ?? previewDirForCollection(collectionId);
+}
+
+// â”€â”€ Best-available-tier resolution â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+/**
+ * Return the best available thumbnail path for a game card.
+ *
+ * Resolution is based on whether each tier's directory is resolved (i.e. the
+ * files physically exist on disk), not on the installedPacks signal. This
+ * avoids mismatches where LP games (torrent_source = "eXoDOS_GLP") look for
+ * "eXoDOS_GLP:posters" but the installed pack is keyed "eXoDOS:posters".
+ *
+ * Resolution order:
+ *   1. Tier 1 - poster dir available (runtime-downloaded HD box art)
+ *   2. Tier 0 - preview dir available (bundled low-quality JPEG)
+ *   3. null   - no thumbnail at all (has_thumbnail = false)
+ */
+export function bestThumbnailPath(
+  collection: string | null | undefined,
+  thumbnailKey: string | null | undefined,
+): string | null {
+  const [first] = thumbnailCandidates(collection, thumbnailKey);
+  return first ?? null;
+}
+
+/** Return every available thumbnail path for a game, poster (Tier 1) first,
+ *  preview (Tier 0) second. GameCard renders the first and swaps to the next
+ *  on `<img onError>` - this is the robust way to handle a *stale* poster pack
+ *  (left over from a previous Exodium version with shortcode-keyed files)
+ *  where the pack dir exists on disk but the specific hash-keyed file inside
+ *  doesn't. Without the fallback, the browser 404s and the tile goes blank. */
+export function thumbnailCandidates(
+  collection: string | null | undefined,
+  thumbnailKey: string | null | undefined,
+): string[] {
+  if (!thumbnailKey) { return []; }
+  const out: string[] = [];
+  const posterDir = posterDirForCollection(collection);
+  if (posterDir) { out.push(`${posterDir}/${thumbnailKey}.jpg`); }
+  const prevDir = previewDirForCollection(collection);
+  if (prevDir) { out.push(`${prevDir}/${thumbnailKey}.jpg`); }
+  return out;
+}
+
+// â”€â”€ Load / refresh tier directories â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+/** Called on app startup and after content-pack state changes. */
+export async function loadThumbnailDir() {
+  try {
+    // Android MVP: only the downloaded eXoDOS poster tier is used.
+    // Do not wait on desktop-oriented bundled-preview resolution.
+    if (navigator.userAgent.includes("Android")) {
+      try {
+        const dir = await getPosterDir("eXoWin3x");
+        setPreviewDirs({});
+        setPosterDirs({ eXoWin3x: dir });
+      } catch {
+        setPreviewDirs({});
+        setPosterDirs({});
+      }
+      setDirsLoaded(true);
+      return;
+    }
+
+    const available = navigator.userAgent.includes("Android")
+      ? [{ id: "eXoDOS" }]
+      : await getAvailableCollections();
+
+    // Resolve Tier 0 preview dirs.
+    const previews: Record<string, string> = {};
+    const posters: Record<string, string> = {};
+
+    const results = await Promise.allSettled(
+      available.flatMap((col) => [
+        getPreviewDir(col.id).then((dir) => ({ type: "preview" as const, id: col.id, dir })),
+        getPosterDir(col.id).then((dir) => ({ type: "poster" as const, id: col.id, dir })),
+      ]),
+    );
+
+    for (const r of results) {
+      if (r.status === "fulfilled") {
+        if (r.value.type === "preview") {
+          previews[r.value.id] = r.value.dir;
+        } else {
+          posters[r.value.id] = r.value.dir;
+        }
+      }
+    }
+
+    setPreviewDirs(previews);
+    setPosterDirs(posters);
+  } catch {
+    setPreviewDirs({});
+    setPosterDirs({});
+  } finally {
+    setDirsLoaded(true);
+  }
+}

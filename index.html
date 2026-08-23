@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <link rel="icon" type="image/png" href="/src/assets/exodium-icon.png" />
+    <title>Exodium</title>
+  </head>
+
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+
+  <script>
+    // Android 10 / older WebView compatibility for Array/String/TypedArray.at()
+    (function () {
+      function at(index) {
+        var len = this.length >>> 0;
+        var n = Number(index);
+        if (isNaN(n)) n = 0;
+        n = n < 0 ? Math.ceil(n) : Math.floor(n);
+        if (n < 0) n += len;
+        if (n < 0 || n >= len) return undefined;
+        return this[n];
+      }
+
+      if (!Array.prototype.at) {
+        Object.defineProperty(Array.prototype, "at", {
+          value: at,
+          writable: true,
+          configurable: true
+        });
+      }
+
+      if (!String.prototype.at) {
+        Object.defineProperty(String.prototype, "at", {
+          value: at,
+          writable: true,
+          configurable: true
+        });
+      }
+
+      if (typeof Int8Array !== "undefined") {
+        var typedArrayPrototype = Object.getPrototypeOf(Int8Array.prototype);
+        if (typedArrayPrototype && !typedArrayPrototype.at) {
+          Object.defineProperty(typedArrayPrototype, "at", {
+            value: at,
+            writable: true,
+            configurable: true
+          });
+        }
+      }
+    })();
+  </script>
+    <script src="/src/index.tsx" type="module"></script>
+  </body>
+</html>

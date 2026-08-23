@@ -1,0 +1,184 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-04-12T00:00:00Z",
+  "manifest_url": "TODO: https://raw.githubusercontent.com/tvollstaedt/exodium-releases/main/manifest.json",
+  "collections": {
+    "eXoDOS": {
+      "torrent_infohash": "99b685d95a496e771e0ebd9d0a547257e222dd1c",
+      "game_count": 7604,
+      "content_packs": {
+        "posters": {
+          "display_name": "Box Art",
+          "description": "HD game box-art thumbnails for the whole catalogue",
+          "url": "https://github.com/tvollstaedt/exodium/releases/download/content-v4/posters-eXoDOS-v5.tar.gz",
+          "sha256": "7399983a4ff412a6b8b0444944346b24ba17b8901ba577bab0fa4b76ab23d1d8",
+          "size_bytes": 396948419,
+          "version": 5,
+          "install_path": "content/posters/eXoDOS",
+          "supersedes": [],
+          "min_compatible_version": 3
+        },
+        "metadata": {
+          "display_name": "Game Metadata",
+          "description": "Screenshots, fanart, and additional box-art variants for the whole catalogue (sourced from the eXoDOS torrent)",
+          "url": "",
+          "sha256": "",
+          "torrent_file_path": "Content/XODOSMetadata.zip",
+          "size_bytes": 4900000000,
+          "version": 1,
+          "install_path": "content/metadata/eXoDOS",
+          "supersedes": []
+        }
+      }
+    },
+    "eXoDOS_GLP": {
+      "torrent_infohash": "903d04310ce42f6e287932b3293366f54e910021",
+      "game_count": 660,
+      "content_packs": {
+        "metadata": {
+          "display_name": "Game Metadata (German)",
+          "description": "German screenshots and box-art variants for the GLP collection (sourced from the GLP torrent)",
+          "url": "",
+          "sha256": "",
+          "torrent_file_path": "Content/eXoDOS_GLP_Metadata.zip",
+          "size_bytes": 25411286691,
+          "version": 1,
+          "install_path": "content/metadata/eXoDOS_GLP",
+          "supersedes": []
+        }
+      }
+    },
+    "eXoDOS_PLP": {
+      "torrent_infohash": "2a452d7fe40dc728b202622fa4735bd89de49548",
+      "game_count": 0,
+      "content_packs": {
+        "metadata": {
+          "display_name": "Game Metadata (Polish)",
+          "description": "Polish screenshots and box-art variants for the PLP collection (sourced from the PLP torrent)",
+          "url": "",
+          "sha256": "",
+          "torrent_file_path": "Content/eXoDOS_PLP_Metadata.zip",
+          "size_bytes": 843638998,
+          "version": 1,
+          "install_path": "content/metadata/eXoDOS_PLP",
+          "supersedes": []
+        }
+      }
+    },
+    "eXoDOS_SLP": {
+      "torrent_infohash": "37b37fd60c04402976ed552fd4416f81a0cae889",
+      "game_count": 0,
+      "content_packs": {
+        "metadata": {
+          "display_name": "Game Metadata (Spanish)",
+          "description": "Spanish screenshots and box-art variants for the SLP collection (sourced from the SLP torrent)",
+          "url": "",
+          "sha256": "",
+          "torrent_file_path": "Content/eXoDOS_SLP_Metadata.zip",
+          "size_bytes": 4104388102,
+          "version": 1,
+          "install_path": "content/metadata/eXoDOS_SLP",
+          "supersedes": []
+        }
+      }
+    },
+    "eXoWin3x": {
+      "torrent_infohash": "9c63aeb02edfdc26bf9e0d399064c7f8902af2c9",
+      "game_count": 1138,
+      "content_packs": {
+        "posters": {
+          "display_name": "Box Art",
+          "description": "HD box art for the Windows 3.x collection",
+          "url": "https://github.com/tvollstaedt/exodium/releases/download/content-v4/posters-eXoWin3x-v1.tar.gz",
+          "sha256": "21c68369e4affb28f3409361f4c868a0ef1fcdb70d402b0075232c90eace3443",
+          "size_bytes": 66784296,
+          "version": 1,
+          "install_path": "content/posters/eXoWin3x",
+          "supersedes": []
+        },
+        "metadata": {
+          "display_name": "Game Metadata",
+          "description": "Box art, screenshots and manuals for the Windows 3.x collection (sourced from the eXoWin3x torrent)",
+          "url": "",
+          "sha256": "",
+          "torrent_file_path": "Content/XOWin3xMetadata.zip",
+          "size_bytes": 2367017468,
+          "version": 1,
+          "install_path": "content/metadata/eXoWin3x",
+          "supersedes": []
+        }
+      }
+    },
+    "eXoWin9x": {
+      "torrent_infohash": "dd8a867f62a6c9cc939d51c742143de2ac98c9f2",
+      "game_count": 662,
+      "content_packs": {
+        "dosbox-x": {
+          "display_name": "DOSBox-X Emulator",
+          "description": "Runs most Windows 9x games. Downloads automatically with your first Windows 9x game.",
+          "url": "",
+          "sha256": "",
+          "size_bytes": 0,
+          "version": 1,
+          "install_path": "content/emulators/dosbox-x",
+          "supersedes": [],
+          "platforms": {
+            "darwin-aarch64": {
+              "url": "https://github.com/tvollstaedt/exodium/releases/download/content-v6/dosbox-x-macos-arm64-v1.tar.gz",
+              "sha256": "dfe624f270e2ad58da3be3e58798edf197e1be4de203e3f4ae954a72809fdba4",
+              "size_bytes": 22464605
+            },
+            "linux-x86_64": {
+              "url": "https://github.com/tvollstaedt/exodium/releases/download/content-v6/dosbox-x-linux-x86_64-v1.tar.gz",
+              "sha256": "9a3b2bbfab5dd0f93062903f9cd274286007003069c8ae77c894c6a9b0601fe8",
+              "size_bytes": 43371906
+            }
+          }
+        },
+        "86box": {
+          "display_name": "86Box Emulator",
+          "description": "Runs the few Windows 9x games that need full PC hardware emulation. Downloads automatically with your first such game.",
+          "url": "",
+          "sha256": "",
+          "size_bytes": 0,
+          "version": 1,
+          "install_path": "content/emulators/86box",
+          "supersedes": [],
+          "platforms": {
+            "darwin-aarch64": {
+              "url": "https://github.com/tvollstaedt/exodium/releases/download/content-v6/86box-macos-universal-v1.tar.gz",
+              "sha256": "79a58db4b319adbd321761f2be5b6430b7fdc52d9bfcbab6dc3a6e36a994463c",
+              "size_bytes": 123782441
+            },
+            "linux-x86_64": {
+              "url": "https://github.com/tvollstaedt/exodium/releases/download/content-v6/86box-linux-x86_64-v1.tar.gz",
+              "sha256": "ef1e4a4c87e0aa2a092e8440e7279ca63c8dece50c5a87b4f559cdda55bddd31",
+              "size_bytes": 92738583
+            }
+          }
+        },
+        "posters": {
+          "display_name": "Box Art",
+          "description": "HD box art for the Windows 9x collection",
+          "url": "https://github.com/tvollstaedt/exodium/releases/download/content-v5/posters-eXoWin9x-v1.tar.gz",
+          "sha256": "1f9244321a98b2c96cd8faf25bf62c6dcbb16888ec831000d1d0e18eba321578",
+          "size_bytes": 39508524,
+          "version": 1,
+          "install_path": "content/posters/eXoWin9x",
+          "supersedes": []
+        },
+        "metadata": {
+          "display_name": "Game Metadata",
+          "description": "Box art, screenshots, manuals and videos for the Windows 9x collection (sourced from the eXoWin9x torrent)",
+          "url": "",
+          "sha256": "",
+          "torrent_file_path": "Content/XOWin9xMetadata.zip",
+          "size_bytes": 4589061615,
+          "version": 1,
+          "install_path": "content/metadata/eXoWin9x",
+          "supersedes": []
+        }
+      }
+    }
+  }
+}

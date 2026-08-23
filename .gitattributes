@@ -1,0 +1,7 @@
+*.bin binary
+*.gz binary
+*.icns binary
+*.ico binary
+*.png binary
+*.torrent binary
+*.zip binary

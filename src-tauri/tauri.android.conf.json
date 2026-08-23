@@ -1,0 +1,26 @@
+{
+    "productName":  "ExoWin Pocket",
+    "identifier":  "app.exowinpocket",
+    "app":  {
+                "windows":  [
+                                {
+                                    "title":  "ExoWin Pocket",
+                                    "decorations":  true,
+                                    "resizable":  true
+                                }
+                            ]
+            },
+    "bundle":  {
+                   "createUpdaterArtifacts":  false,
+                   "externalBin":  [
+
+                                   ],
+                   "resources":  {
+                                     "../metadata":  "metadata",
+                                     "../torrents":  "torrents",
+                                     "../manifest.json":  "manifest.json",
+                                     "resources/dosbox-glshaders":  null,
+                                     "resources/dosbox-bin":  null
+                                 }
+               }
+}

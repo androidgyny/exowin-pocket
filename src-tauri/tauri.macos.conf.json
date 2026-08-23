@@ -1,0 +1,15 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "app": {
+    "windows": [
+      {
+        "title": "Exodium",
+        "width": 1280,
+        "height": 800,
+        "decorations": true,
+        "titleBarStyle": "Visible",
+        "resizable": true
+      }
+    ]
+  }
+}

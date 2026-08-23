@@ -1,0 +1,129 @@
+[package]
+name = "exodium"
+version = "0.13.1"
+description = "Experimental Android launcher for the eXoWin3x collection"
+authors = ["Thomas Vollstädt", "Exodium Pocket contributors", "ExoWin Pocket contributors"]
+edition = "2021"
+default-run = "exodium"
+license = "MIT"
+repository = "https://github.com/androidgyny/exowin-pocket"
+readme = "../README.md"
+
+[lib]
+name = "exodium_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["protocol-asset"] }
+tauri-plugin-opener = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-android-storage-permissions = { path = "../tauri-plugin-android-storage-permissions" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Database
+rusqlite = { version = "0.31", features = ["bundled"] }
+
+# XML parsing (eXoDOS metadata)
+quick-xml = { version = "0.36", features = ["serialize"] }
+
+# ZIP extraction (eXoDOS Lite archives)
+zip = "2"
+
+# Gzip decompression (bundled metadata)
+flate2 = "1"
+
+# File system traversal
+walkdir = "2"
+
+# Error handling
+thiserror = "2"
+anyhow = "1"
+
+# Async runtime
+tokio = { version = "1", features = ["fs", "sync"] }
+
+# Torrent parsing
+lava_torrent = "0.11"
+
+# Torrent downloading
+# Pinned to v9.0.0-beta.2 git tag - 8.x silently stalls Windows downloads at 0%
+# because it does NOT use sparse files on NTFS, so it tries to pre-allocate the
+# full multi-100-GB torrent before any pieces transfer. Upstream PR #390 fixed
+# this only on the v9 line. Stable 8.1.1 (latest on crates.io) lacks the fix.
+# 9.0.0-rc.0 from crates.io (was a git-pinned beta.2): keeps the v9 NTFS
+# sparse-file fix and picks up months of initializing/check fixes, without a
+# git-pin supply-chain dependency.
+librqbit = { version = "=9.0.1", default-features = false, features = ["rust-tls", "http-api-client", "disable-upload"] }
+
+# HTTP client (content pack downloads)
+reqwest = { version = "0.12", default-features = false, features = ["stream", "rustls-tls"] }
+futures-util = "0.3"
+
+# Cryptographic hashing (sha256 verification of downloaded packs)
+sha2 = "0.10"
+
+# Gallery thumbnail cache. The metadata pack ships 36k full-resolution images
+# (avg 145 KB, up to 18 MB) that the detail panel renders at 64x48 - decoding
+# those in the webview on every open is the "screenshots appear late" delay.
+# Only the three formats the pack actually contains: 25k png, 17k jpg, 799 gif.
+image = { version = "0.25", default-features = false, features = ["jpeg", "png", "gif"] }
+
+# Tar extraction (content pack archives)
+tar = "0.4"
+
+# Disk space queries (pre-flight check before large downloads)
+fs2 = "0.4"
+
+# Logging
+# We standardise on `tracing` because librqbit (our torrent crate) emits its
+# diagnostics through `tracing` rather than `log`. `tracing-log` bridges any
+# `log!` calls (from our own code and other crates) into the same subscriber,
+# so a single sink captures both worlds. `env_logger` was previously used for
+# the file/stderr tee; the tee now lives on the tracing subscriber's writer.
+log = "0.4"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+tracing-log = "0.2"
+fs4 = "1.1.0"
+
+[target.'cfg(windows)'.dependencies]
+# Directory junctions for the LP overlay mount - unlike symlinks they need
+# no admin rights / developer mode on Windows.
+junction = "1"
+
+[target."cfg(unix)".dependencies]
+libc = "0.2.189"
+
+# Localhost media server (Linux only): WebKitGTK's GStreamer player cannot
+# pull media out of a custom URI scheme handler (MEDIA_ERR_SRC_NOT_SUPPORTED),
+# so <video> sources are served over 127.0.0.1 HTTP with Range support
+# instead. All three crates are already in the tree via librqbit - this adds
+# no new compilation units beyond tower-http's "fs" service.
+[target.'cfg(any(target_os = "linux", target_os = "android"))'.dependencies]
+axum = "0.8"
+tower = { version = "0.5", features = ["util"] }
+tower-http = { version = "0.6", features = ["fs"] }
+
+[dev-dependencies]
+tempfile = "3"
+pretty_assertions = "1"
+# `start_paused` test runtime: lets the stalled-stream test hit its 45s timeout
+# instantly instead of actually waiting for it.
+tokio = { version = "1", features = ["fs", "sync", "macros", "rt", "test-util", "time"] }
+
+# Exodium Pocket: desktop integrations stay desktop-only; Android uses a tiny
+# native bridge to launch RetroArch/DOSBox Pure.
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+tauri-plugin-single-instance = "2.4.2"
+tauri-plugin-updater = "2.10.1"
+tauri-plugin-process = "2.3.1"
+
+[target.'cfg(target_os = "android")'.dependencies]
+tauri-plugin-retroarch-launcher = { path = "../tauri-plugin-retroarch-launcher" }
+
+[patch.crates-io]
+librqbit = { path = "vendor/librqbit-9.0.1-ab" }

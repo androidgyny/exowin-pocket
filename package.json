@@ -1,0 +1,48 @@
+{
+    "name":  "exowin-pocket",
+    "version":  "0.13.1",
+    "description":  "Android launcher for the eXoWin3x collection, based on Exodium Pocket",
+    "type":  "module",
+    "scripts":  {
+                    "start":  "vite",
+                    "dev":  "vite",
+                    "build":  "vite build",
+                    "serve":  "vite preview",
+                    "tauri":  "cross-env WEBKIT_DISABLE_DMABUF_RENDERER=1 tauri",
+                    "android:patch-manifest":  "node scripts/patch-android-manifest.mjs",
+                    "android:init":  "pnpm tauri android init --ci \u0026\u0026 pnpm android:patch-manifest",
+                    "android:build:apk":  "pnpm android:patch-manifest \u0026\u0026 pnpm tauri android build --apk --target aarch64",
+                    "get-dosbox":  "bash scripts/get-dosbox.sh",
+                    "get-emulators":  "bash scripts/get-emulators.sh",
+                    "init-dev":  "bash scripts/get-dosbox.sh \u0026\u0026 bash scripts/get-emulators.sh \u0026\u0026 bash scripts/init-dev.sh",
+                    "gen-db":  "cd src-tauri \u0026\u0026 cargo run --example generate_db \u0026\u0026 cd .. \u0026\u0026 gzip -kf metadata/exodium.db",
+                    "infohash":  "sqlite3 \"${EXODIUM_DB:-$HOME/Library/Application Support/com.redfox.exodium/exodium.db}\" \"SELECT key, value FROM config WHERE key LIKE \u0027%infohash%\u0027;\"",
+                    "typecheck":  "tsc --noEmit",
+                    "test":  "vitest run",
+                    "test:watch":  "vitest",
+                    "test:all":  "cargo test --manifest-path src-tauri/Cargo.toml \u0026\u0026 vitest run"
+                },
+    "license":  "MIT",
+    "repository":  {
+                       "type":  "git",
+                       "url":  "https://github.com/androidgyny/exowin-pocket.git"
+                   },
+    "dependencies":  {
+                         "@ark-ui/solid":  "^5.35.0",
+                         "@tauri-apps/api":  "^2",
+                         "@tauri-apps/plugin-dialog":  "^2.6.0",
+                         "@tauri-apps/plugin-opener":  "^2",
+                         "@tauri-apps/plugin-process":  "^2.3.1",
+                         "@tauri-apps/plugin-updater":  "^2.10.1",
+                         "solid-js":  "^1.9.3"
+                     },
+    "devDependencies":  {
+                            "@tauri-apps/cli":  "^2",
+                            "cross-env":  "^10.1.0",
+                            "jsdom":  "^25",
+                            "typescript":  "~5.6.2",
+                            "vite":  "^6.0.3",
+                            "vite-plugin-solid":  "^2.11.0",
+                            "vitest":  "^2"
+                        }
+}

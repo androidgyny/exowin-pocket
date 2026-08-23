@@ -1,0 +1,15 @@
+[package]
+name = "tauri-plugin-android-storage-permissions"
+version = "0.1.0"
+description = "Android storage permission bridge for Exodium Pocket"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/androidgyny/exodium-pocket"
+links = "tauri-plugin-android-storage-permissions"
+
+[build-dependencies]
+tauri-plugin = { version = "2", features = ["build"] }
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+tauri = "2"

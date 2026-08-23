@@ -1,0 +1,93 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Frontend build output and test artifacts
+dist/
+coverage/
+.vite/
+.vitest/
+
+# Rust and Tauri build output
+target/
+src-tauri/target/
+src-tauri/gen/
+src-tauri/.tauri/
+**/.tauri/
+
+# Android and Gradle output
+.gradle/
+**/.gradle/
+**/build/
+*.apk
+*.aab
+*.ap_
+*.idsig
+
+# Native/JNI build artifacts
+*.so
+*.dylib
+*.dll
+*.class
+*.o
+*.a
+
+# Generated or downloaded media/content
+src-tauri/resources/previews/
+src-tauri/resources/dosbox-glshaders/
+src-tauri/resources/dosbox-bin/
+src-tauri/resources/dosbox-x/
+src-tauri/resources/86box/
+src-tauri/resources/.win9x-emulators-version
+src-tauri/binaries/
+thumbnails/
+previews/
+posters/
+content/
+downloads/
+eXoDOS/
+eXoWin3x/
+eXoWin9x/
+
+# Generated databases and SQLite sidecars
+metadata/*.db
+metadata/*.db-shm
+metadata/*.db-wal
+src-tauri/*.db
+src-tauri/*.db-shm
+src-tauri/*.db-wal
+
+# Local reports, diagnostics, and temporary files
+*.log
+android-dependencies.txt
+js-licenses.json
+rust-licenses.txt
+*.bak
+*.bak*
+*.before-*
+*-test.zip
+*.dosz
+*.iso
+*.img
+*.vhd
+*.vhdx
+*.tmp
+*.temp
+.exowin-wiring-backup-*/
+exowin-audit/
+shivers-win32s-stage/
+
+# Python
+__pycache__/
+scripts/__pycache__/
+
+# Editors and OS metadata
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
+Thumbs.db
+
+# Local assistants
+.claude/
