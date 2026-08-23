@@ -740,7 +740,9 @@ pub fn run() {
         .plugin(tauri_plugin_process::init());
 
     #[cfg(target_os = "android")]
-    let builder = builder.plugin(tauri_plugin_retroarch_launcher::init());
+    let builder = builder
+        .plugin(tauri_plugin_android_document_viewer::init())
+        .plugin(tauri_plugin_retroarch_launcher::init());
 
     builder.setup(|app| {
             // Initialize the logger as early as possible so later setup steps' log

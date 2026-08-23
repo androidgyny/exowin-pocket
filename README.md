@@ -26,12 +26,15 @@ ExoWin Pocket is an MVP Android launcher for Windows 3.x games. It keeps Exodium
 
 At launch time, ExoWin Pocket interprets the original eXoWin3x DOSBox configuration, creates a DOSBox Pure save overlay, mounts the user's shared Windows shell, and prepares the per-game Windows files and startup command. The curated catalog contains 1,119 candidates after 19 recipes with known blockers were excluded.
 
+Manuals supplied by the optional extended metadata pack are also supported. Text, HTML, and image manuals can be viewed inside ExoWin Pocket; on Android, PDF, Word, and RTF manuals are passed to a compatible installed document reader.
+
 ## Limitations
 
 - The Android MVP is for the curated eXoWin3x catalog. It is not an eXoDOS, eXoWin9x, Windows 95, or Windows 98 launcher.
 - Compatibility is incomplete. The original collection was built around multiple desktop DOSBox variants and per-game settings; ExoWin Pocket instead routes everything through DOSBox Pure on Android.
 - Only a small portion of the catalog has been tested by hand. A successful download does not imply that a game will boot, render, play sound, accept input, or remain stable.
-- Some games require the user to adjust DOSBox Pure core options such as memory, CPU type, core mode, or cycles. ExoWin Pocket warns about this but cannot derive every correct setting automatically.
+- Some games require the user to adjust DOSBox Pure core options such as memory, CPU type, core mode, or cycles. ExoWin Pocket does not create or modify RetroArch's per-game `.opt` files; configure and save those options from RetroArch's Quick Menu.
+- Manuals require the optional extended metadata pack. PDF, Word, and RTF manuals also require a compatible document reader installed on Android.
 - CD, floppy, multi-disc, Win32s, installer-driven, unusual drive-letter, and hybrid DOS/Windows titles are more likely to fail.
 - Nineteen known-incompatible or unsupported launch recipes are omitted from the catalog. See [Compatibility Notes](docs/COMPATIBILITY.md).
 - Importing an existing desktop eXo installation is not a supported workflow. ExoWin Pocket is designed to manage its own Android download folder.
@@ -48,20 +51,24 @@ Install and configure these separately before launching a game:
 - The DOSBox Pure libretro core inside RetroArch.
 - A legally obtained Windows 3.1 or Windows for Workgroups 3.11 installation assembled as `Windows311-EXOWIN.dosz`.
 
+A separate PDF or document reader is optional and is needed only to open manual formats that Android's WebView cannot display directly.
+
 The Windows shell is essential. Follow the complete [Windows DOSZ Assembly Guide](docs/WINDOWS-DOSZ.md); a generic Windows archive is unlikely to have the layout, drivers, mouse support, and exit helper expected by the launcher.
 
 ## Android Storage Requirement
 
-ExoWin Pocket requires Android "All files access" so it and RetroArch can resolve the same ordinary filesystem paths. The current port does not use a fully scoped-storage or Storage Access Framework workflow.
+ExoWin Pocket requires Android "All files access" to manage its shared-storage library and prepare DOSBox Pure save overlays. RetroArch separately needs access to the same ordinary shared-storage paths. The current port does not use a fully scoped-storage or Storage Access Framework workflow.
 
-By default, the app stores its library under `/storage/emulated/0/ExoWinPocket`, expects the Windows shell at `/storage/emulated/0/RetroArch/system/Windows311-EXOWIN.dosz`, and writes per-game DOSBox Pure overlays under `/storage/emulated/0/RetroArch/saves/DOSBox-pure`.
+By default, the app stores its library under `/storage/emulated/0/ExoWinPocket`, expects the Windows shell at `/storage/emulated/0/RetroArch/system/Windows311-EXOWIN.dosz`, and writes DOSBox Pure save overlays containing translated startup files under `/storage/emulated/0/RetroArch/saves/DOSBox-pure`.
+
+ExoWin Pocket does not read or modify RetroArch's private configuration under `Android/data`, and it does not manage RetroArch's per-game core-option files.
 
 After installing the APK, grant ExoWin Pocket "All files access" in Android settings. Without it, setup, downloads, artwork installation, disk-space checks, shell validation, or launching can fail even when ordinary media permissions appear enabled.
 
 ## What Is Included
 
 - Android-specific Tauri configuration for package `app.exowinpocket`.
-- Native bridges for Android storage permission and RetroArch launching.
+- Native bridges for Android storage permission, external document viewing, and RetroArch launching.
 - Curated eXoWin3x catalog metadata, launch configurations, and torrent metadata.
 - Selective game downloads, optional artwork/metadata packs, favorites, installation tracking, and uninstall support.
 - Launch translation for ordinary Windows-folder recipes and many `WIN`, batch, CD image, floppy image, multi-disc, and arbitrary-drive recipes.

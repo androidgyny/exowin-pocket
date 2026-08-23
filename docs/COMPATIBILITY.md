@@ -43,7 +43,7 @@ The following 19 shortcodes are intentionally absent from the Android catalog:
 
 ## User Configuration
 
-Some titles only work with particular DOSBox Pure options. ExoWin Pocket seeds known-good settings for a very small number of validated games, but it preserves an existing per-game options file rather than overwriting the user's choices.
+Some titles only work with particular DOSBox Pure options. ExoWin Pocket does not create or modify per-game RetroArch option files; those settings belong to the user.
 
 When a game fails, test memory size, CPU type, normal versus dynamic core, and fixed cycles. A title may also need a different MIDI or audio setup, a changed executable selection, disc swapping, or a fresh generated overlay. These adjustments are considered normal for this MVP.
 

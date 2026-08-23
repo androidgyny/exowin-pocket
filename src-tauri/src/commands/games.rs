@@ -310,10 +310,48 @@ pub async fn open_manual(
     if !canonical.starts_with(&base) {
         return Err(format!("Refusing to open path outside the data directory: {}", path));
     }
-    use tauri_plugin_opener::OpenerExt;
-    app.opener()
-        .open_path(canonical.to_string_lossy(), None::<&str>)
-        .map_err(|e| e.to_string())
+    #[cfg(target_os = "android")]
+    {
+        use tauri_plugin_android_document_viewer::{
+            AndroidDocumentViewerExt, OpenDocumentRequest,
+        };
+        let mime_type = document_mime_type(&canonical).to_string();
+        return app.android_document_viewer().open(OpenDocumentRequest {
+            path: canonical.to_string_lossy().into_owned(),
+            mime_type,
+        });
+    }
+
+    #[cfg(not(target_os = "android"))]
+    {
+        use tauri_plugin_opener::OpenerExt;
+        app.opener()
+            .open_path(canonical.to_string_lossy(), None::<&str>)
+            .map_err(|e| e.to_string())
+    }
+}
+
+#[cfg(any(target_os = "android", test))]
+fn document_mime_type(path: &Path) -> &'static str {
+    let ext = path
+        .extension()
+        .and_then(|value| value.to_str())
+        .unwrap_or("")
+        .to_ascii_lowercase();
+    match ext.as_str() {
+        "pdf" => "application/pdf",
+        "txt" | "text" => "text/plain",
+        "html" | "htm" => "text/html",
+        "doc" => "application/msword",
+        "docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "rtf" => "application/rtf",
+        "jpg" | "jpeg" => "image/jpeg",
+        "png" => "image/png",
+        "gif" => "image/gif",
+        "webp" => "image/webp",
+        "bmp" => "image/bmp",
+        _ => "application/octet-stream",
+    }
 }
 
 /// Can this install apply updates via the tauri updater? Linux deb/rpm
@@ -5717,124 +5755,6 @@ let custom_count = custom_windows.len();
 }
 
 #[cfg(target_os = "android")]
-fn exowin_retroarch_cfg_value(text: &str, wanted: &str) -> Option<String> {
-    for raw in text.lines() {
-        let line = raw.trim();
-        if line.is_empty() || line.starts_with('#') {
-            continue;
-        }
-        let Some((key, value)) = line.split_once('=') else {
-            continue;
-        };
-        if key.trim().eq_ignore_ascii_case(wanted) {
-            let value = value.trim().trim_matches('"').trim();
-            if !value.is_empty() && !value.eq_ignore_ascii_case("default") {
-                return Some(value.to_string());
-            }
-        }
-    }
-    None
-}
-
-#[cfg(target_os = "android")]
-fn exowin_set_core_option(text: &str, key: &str, value: &str) -> String {
-    let newline = if text.contains("\r\n") { "\r\n" } else { "\n" };
-    let normalized = text.replace("\r\n", "\n");
-    let mut out = Vec::<String>::new();
-    let mut replaced = false;
-
-    for raw in normalized.lines() {
-        let mut is_key = false;
-        if let Some((lhs, _)) = raw.split_once('=') {
-            is_key = lhs.trim().eq_ignore_ascii_case(key);
-        }
-        if is_key {
-            if !replaced {
-                out.push(format!("{} = \"{}\"", key, value));
-                replaced = true;
-            }
-        } else {
-            out.push(raw.to_string());
-        }
-    }
-
-    if !replaced {
-        out.push(format!("{} = \"{}\"", key, value));
-    }
-
-    let mut result = out.join(newline);
-    result.push_str(newline);
-    result
-}
-
-#[cfg(target_os = "android")]
-fn exowin_ensure_game_core_options(
-    retroarch_cfg: &str,
-    content_stem: &str,
-    overrides: &[(&str, &str)],
-) -> Result<std::path::PathBuf, String> {
-    use std::path::{Path, PathBuf};
-
-    let cfg_path = Path::new(retroarch_cfg);
-    let cfg_text = std::fs::read_to_string(cfg_path).unwrap_or_default();
-
-    let config_dir = exowin_retroarch_cfg_value(&cfg_text, "rgui_config_directory")
-        .map(PathBuf::from)
-        .or_else(|| cfg_path.parent().map(|p| p.join("config")))
-        .ok_or_else(|| format!("Could not determine RetroArch config directory from {}", retroarch_cfg))?;
-
-    let core_dir = config_dir.join("DOSBox-pure");
-    std::fs::create_dir_all(&core_dir)
-        .map_err(|e| format!("Could not create {}: {e}", core_dir.display()))?;
-
-    let game_opt = core_dir.join(format!("{}.opt", content_stem));
-
-    // Once a game has its own profile, it belongs to the user. Seed known-good
-    // values only on first launch so later Core Options adjustments persist.
-    if game_opt.is_file() {
-        log::info!(
-            "ExoWin preserving existing DOSBox Pure options: game={} path={}",
-            content_stem,
-            game_opt.display(),
-        );
-        return Ok(game_opt);
-    }
-
-    // Seed from the active per-core options so unrelated preferences remain
-    // unchanged.
-    let per_core = core_dir.join("DOSBox-pure.opt");
-    let legacy_global = exowin_retroarch_cfg_value(&cfg_text, "core_options_path")
-        .map(PathBuf::from)
-        .or_else(|| cfg_path.parent().map(|p| p.join("retroarch-core-options.cfg")));
-
-    let mut options = [Some(per_core), legacy_global]
-        .into_iter()
-        .flatten()
-        .find(|p| p.is_file())
-        .and_then(|p| std::fs::read_to_string(p).ok())
-        .unwrap_or_default();
-
-    for (key, value) in overrides {
-        options = exowin_set_core_option(&options, key, value);
-    }
-
-    std::fs::write(&game_opt, options.as_bytes())
-        .map_err(|e| format!("Could not write game options {}: {e}", game_opt.display()))?;
-
-    log::info!(
-        "ExoWin game-specific DOSBox Pure options: game={} options={} -> {}",
-        content_stem,
-        overrides
-            .iter()
-            .map(|(key, value)| format!("{}={}", key, value))
-            .collect::<Vec<_>>()
-            .join(", "),
-        game_opt.display(),
-    );
-
-    Ok(game_opt)
-}
-#[cfg(target_os = "android")]
 fn launch_game_android(
     app: &AppHandle,
     db_state: &State<'_, DbState>,
@@ -6104,38 +6024,6 @@ fn launch_game_android(
                 package_name
             ))
         });
-
-        let mut compatibility_options = Vec::<(&str, &str)>::new();
-
-        // Keep compatibility settings content-specific. Unrelated games retain
-        // the user's normal DOSBox Pure profile.
-        if shortcode.eq_ignore_ascii_case("ShiversT") {
-            compatibility_options.push(("dosbox_pure_bootos_forcenormal", "true"));
-        }
-
-        // Validated on-device against both original eXo recipes. The default
-        // 16 MB / automatic CPU / 26,800-cycle profile prevents these titles
-        // from launching correctly under their game-specific Windows trees.
-        if shortcode.eq_ignore_ascii_case("3DUP")
-            || shortcode.eq_ignore_ascii_case("3DUPCN")
-        {
-            compatibility_options.extend([
-                ("dosbox_pure_memory_size", "64"),
-                ("dosbox_pure_cpu_type", "pentium_slow"),
-                ("dosbox_pure_cycles", "77000"),
-            ]);
-        }
-
-        if !compatibility_options.is_empty() {
-            let retroarch_cfg = config_file.as_deref().ok_or_else(|| {
-                format!("Could not determine RetroArch config path for {}", game.title)
-            })?;
-            exowin_ensure_game_core_options(
-                retroarch_cfg,
-                stem,
-                &compatibility_options,
-            )?;
-        }
 
         match app.retroarch_launcher().launch(LaunchRequest {
             package_name: package_name.clone(),
@@ -6712,6 +6600,17 @@ pub(crate) fn spawn_emulator_and_track(
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn document_mime_types_cover_catalog_manual_formats() {
+        use std::path::Path;
+
+        assert_eq!(super::document_mime_type(Path::new("manual.pdf")), "application/pdf");
+        assert_eq!(super::document_mime_type(Path::new("manual.doc")), "application/msword");
+        assert_eq!(super::document_mime_type(Path::new("manual.rtf")), "application/rtf");
+        assert_eq!(super::document_mime_type(Path::new("manual.jpg")), "image/jpeg");
+        assert_eq!(super::document_mime_type(Path::new("manual.PNG")), "image/png");
+    }
+
     // The AppImage's LD_LIBRARY_PATH is what makes an emulator hang on window
     // close, and PATH must survive the cleanup or nothing launches at all.
     #[cfg(target_os = "linux")]

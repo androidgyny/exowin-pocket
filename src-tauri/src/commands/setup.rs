@@ -1869,9 +1869,11 @@ fn manual_kind_from_path(path: &Path) -> &'static str {
     let ext = path.extension().and_then(|e| e.to_str())
         .unwrap_or("").to_ascii_lowercase();
     match ext.as_str() {
+        "pdf" => "pdf",
         "txt" | "text" => "txt",
         "html" | "htm" => "html",
-        _ => "pdf",
+        "jpg" | "jpeg" | "png" | "webp" | "gif" | "bmp" => "image",
+        _ => "external",
     }
 }
 
@@ -3343,6 +3345,17 @@ mod real_pack_tests {
 #[cfg(test)]
 mod metadata_scan_tests {
     use super::*;
+
+    #[test]
+    fn manual_kinds_do_not_treat_every_document_as_pdf() {
+        assert_eq!(manual_kind_from_path(Path::new("manual.pdf")), "pdf");
+        assert_eq!(manual_kind_from_path(Path::new("manual.txt")), "txt");
+        assert_eq!(manual_kind_from_path(Path::new("manual.htm")), "html");
+        assert_eq!(manual_kind_from_path(Path::new("manual.jpg")), "image");
+        assert_eq!(manual_kind_from_path(Path::new("manual.png")), "image");
+        assert_eq!(manual_kind_from_path(Path::new("manual.doc")), "external");
+        assert_eq!(manual_kind_from_path(Path::new("manual.rtf")), "external");
+    }
 
     /// Build a data dir shaped like a real install with the metadata pack
     /// extracted: <data>/content/metadata/<collection>/Images/MS-DOS/<cat>/ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¦

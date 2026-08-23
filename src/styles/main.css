@@ -4138,6 +4138,7 @@ body {
 }
 
 .manual-viewer-body {
+  position: relative;
   flex: 1;
   background: #fff;
   display: flex;
@@ -4156,6 +4157,22 @@ body {
   height: 100%;
 }
 
+.manual-viewer-image-wrap {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 20px;
+  overflow: auto;
+}
+
+.manual-viewer-image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
 .manual-viewer-text {
   flex: 1;
   margin: 0;
@@ -4171,11 +4188,27 @@ body {
 .manual-viewer-loading {
   flex: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 12px;
+  padding: 20px;
+  text-align: center;
   color: var(--text-muted);
   font-size: 13px;
   background: var(--bg-primary);
+}
+
+.manual-viewer-error {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  padding: 12px 14px;
+  color: #ff8795;
+  background: rgba(75, 18, 28, 0.96);
+  border: 1px solid rgba(255, 94, 117, 0.4);
+  border-radius: 6px;
 }
 
 /* Full-screen blocking overlay shown while factory_reset runs. Sits above

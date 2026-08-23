@@ -1,0 +1,15 @@
+[package]
+name = "tauri-plugin-android-document-viewer"
+version = "0.1.0"
+description = "Android Tauri bridge for opening validated documents with read-only content URIs"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/androidgyny/exowin-pocket"
+links = "tauri-plugin-android-document-viewer"
+
+[build-dependencies]
+tauri-plugin = { version = "2", features = ["build"] }
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+tauri = "2"

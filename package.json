@@ -1,6 +1,6 @@
 {
     "name":  "exowin-pocket",
-    "version":  "0.13.1",
+    "version":  "0.13.2",
     "description":  "Android launcher for the eXoWin3x collection, based on Exodium Pocket",
     "type":  "module",
     "scripts":  {

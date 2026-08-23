@@ -517,7 +517,7 @@ export async function getPosterDir(collection: string): Promise<string> {
 
 export interface GameMetadata {
   manual_path: string | null;
-  manual_kind: "pdf" | "txt" | "html" | null;
+  manual_kind: "pdf" | "txt" | "html" | "image" | "external" | null;
   /** Full-resolution paths - what the lightbox opens. */
   images: string[];
   /** Cached 160px copies, aligned 1:1 with `images` - what the strip renders.
